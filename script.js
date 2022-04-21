@@ -3,31 +3,36 @@ const songs = [
         title: "Two times",
         artist: "Jack Stauber",
         src: "music/two times jack stauber.mp3",
-        img: "cover/jack stauber.jpg"
+        img: "cover/jack stauber.jpg",
+        isPlaying: true
     },
     {
         title: "Somebody to love",
         artist: "Queen",
         src: "music/somebody to love remasterred 2011 queen.mp3",
-        img: "cover/queen.jpg"
+        img: "cover/queen.jpg",
+        isPlaying: false
     },
     {
         title: "Do it on",
         artist: "Nomadic XXL",
         src: "music/do-it-on.mp3",
-        img: "cover/nomadic.jpg"
+        img: "cover/nomadic.jpg",
+        isPlaying: false
     },
     {
         title: "Enemy",
         artist: "Imagine Dragons",
         src: "music/enemy.mp3",
-        img: "cover/imagine dragons.jpg"
+        img: "cover/imagine dragons.jpg",
+        isPlaying: false
     },
     {
         title: "Strand out fit in",
         artist: "ONE OK ROCK",
         src: "music/Stand-Out-Fit-In.mp3",
-        img: "cover/one ok rock.jpg"
+        img: "cover/one ok rock.jpg",
+        isPlaying: false
     }
     
 ]
@@ -49,19 +54,6 @@ const btnNext = document.querySelector("#next")
 const progressBar = document.querySelector("progress")
 const pastTime = document.querySelector(".start")
 const entTime = document.querySelector(".end")
-
-const imgCover1 = document.querySelector(".next-cover-1")
-const songName1 = document.querySelector(".next-song-1")
-const artistName1 = document.querySelector(".next-artist-1")
-const imgCover2 = document.querySelector(".next-cover-2")
-const songName2 = document.querySelector(".next-song-2")
-const artistName2 = document.querySelector(".next-artist-2")
-const imgCover3 = document.querySelector(".next-cover-3")
-const songName3 = document.querySelector(".next-song-3")
-const artistName3 = document.querySelector(".next-artist-3")
-const imgCover4 = document.querySelector(".next-cover-4")
-const songName4 = document.querySelector(".next-song-4")
-const artistName4 = document.querySelector(".next-artist-4")
 
 btnMutedOn.addEventListener("click", () => {
     song.muted = true;
@@ -96,6 +88,8 @@ btnPrev.addEventListener("click", () => {
         indexSong--
         renderSong(indexSong)
     }
+
+    changeCurrentMusic(indexSong)
 })
 
 btnNext.addEventListener("click", () => {
@@ -107,7 +101,20 @@ btnNext.addEventListener("click", () => {
         indexSong++
         renderSong(indexSong)
     }
+    
+    changeCurrentMusic(indexSong)
 })
+
+function changeCurrentMusic(currentSongIndex){
+    const newSongs = songs.map((item, index) => {
+        if(index === currentSongIndex){
+            return {...item, isPlaying: true}
+        }
+        return {...item, isPlaying: false}
+    })
+    
+    renderNextSongs(newSongs)
+}
 
 song.addEventListener("timeupdate", () => {
     let actualTime = (song.currentTime / song.duration) * 100
@@ -137,28 +144,51 @@ function renderSong(index) {
         coverImg.src = songs[index].img
         songName.textContent = songs[index].title
         artistName.textContent = songs[index].artist
+
         entTime.textContent = secToMin(song.duration)
         progressBar.style.width = "0%"
         btnPlay.style.display = "block"
         btnPause.style.display = "none"
-        renderNextSongs(indexSong)
     })
 }
 
-function renderNextSongs(index){
-    imgCover1.src = songs[index + 1].img
-    songName1.textContent = songs[index + 1].title
-    artistName1.textContent = songs[index + 1].artist
-    imgCover2.src = songs[index + 2].img
-    songName2.textContent = songs[index + 2].title
-    artistName2.textContent = songs[index + 2].artist
-    imgCover3.src = songs[index + 3].img
-    songName3.textContent = songs[index + 3].title
-    artistName3.textContent = songs[index + 3].artist
-    imgCover4.src = songs[index + 4].img
-    songName4.textContent = songs[index + 4].title
-    artistName4.textContent = songs[index + 4].artist
+function containerFactory(img, name, artist){
+    const containerNextMusic = document.createElement("div")
+    containerNextMusic.classList.add("container-next-music")
+    
+    const containerNextImg = document.createElement("div")
+    containerNextImg.classList.add("container-next-img")
+    const containerNextImgCover = document.createElement("img")
+    containerNextImgCover.src = img
+    containerNextImg.appendChild(containerNextImgCover)
+
+    containerNextMusic.appendChild(containerNextImg)
+
+    const containerNextNames = document.createElement("div")
+    containerNextNames.classList.add("container-next-names")
+    const containerNextSongName = document.createElement("h4")
+    containerNextSongName.classList.add("container-next-song-name")
+    containerNextSongName.textContent = name
+    const containerNextArtistName = document.createElement("h5")
+    containerNextArtistName.classList.add("container-next-artist-name")
+    containerNextArtistName.textContent = artist
+
+    containerNextNames.appendChild(containerNextSongName)
+    containerNextNames.appendChild(containerNextArtistName)
+    containerNextMusic.appendChild(containerNextNames)
+
+    return containerNextMusic
+}
+
+function renderNextSongs(songs){
+    const containerNs = document.querySelector(".container-ns")
+    containerNs.innerHTML = ""
+    songs.forEach(({title, artist, img, isPlaying}) => {
+        if(!isPlaying){
+            containerNs.appendChild(containerFactory(img, title, artist))
+        }
+    });
 }
 
 renderSong(indexSong)
-renderNextSongs(indexSong)
+renderNextSongs(songs)
